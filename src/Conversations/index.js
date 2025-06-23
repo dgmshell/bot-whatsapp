@@ -6,4 +6,3 @@ console.log("Installed flows");
 manager.useEventDisabler('conversation');
 // Setting Flows
 manager.addFlow(FlowSaludo);
-//# sourceMappingURL=index.js.map
