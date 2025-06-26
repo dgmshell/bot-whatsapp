@@ -83,3 +83,21 @@ class BaileyClient {
 const bailey = new BaileyClient();
 // Inicializar la conexión
 bailey.connect().then(() => {});
+// const dbName = ctx.useMemo(ctx.phoneNumber, 'name');
+// const dbPhone = ctx.useMemo(ctx.phoneNumber, 'phone');
+// // Insertar en Supabase
+// const { data, error } = await supabase
+//     .from('whatsapp')
+//     .insert([
+//         {
+//             userName: dbName,
+//             userPhone: dbPhone
+//         }
+//     ])
+//     .select();
+//
+// if (error) {
+//     console.error('Error insertando en Supabase:', error);
+// } else {
+//     console.log('Insertado en Supabase:', data);
+// }

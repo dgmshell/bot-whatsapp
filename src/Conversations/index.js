@@ -1,5 +1,5 @@
 import { Manager } from '../Flow/Manager.js';
-import { FlowSaludo } from './Saludo/index.js';
+import {FlowSaludo, IAAnswer} from './Saludo/index.js';
 const manager = Manager.getInstance();
 console.log("Installed flows");
 // Setting

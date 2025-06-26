@@ -12,6 +12,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@google/genai": "^1.6.0",
     "@supabase/supabase-js": "^2.50.1",
     "baileys": "^6.7.18",
     "pino": "^9.7.0",
