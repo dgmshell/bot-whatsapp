@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload File and Submit Candidate</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+</head>
+<body>
+<h1>Enviar Candidato</h1>
+
+<!-- Campo para seleccionar el archivo -->
+<input type="file" id="fileInput" />
+<br><br>
+
+<!-- Botón para enviar la solicitud -->
+<button onclick="send()">Send Candidate</button>
+
+<script>
+    async function send() {
+        const fileInput = document.getElementById("fileInput");
+        const file = fileInput.files[0];
+
+        if (!file) {
+            alert("Por favor selecciona un archivo.");
+            return;
+        }
+
+        try {
+            // Paso 1: Obtener la pre-signed URL
+            const presignedData = await getPresignedUrl(file);
+
+            // Paso 2: Subir el archivo a S3
+            await uploadFileToS3(file, presignedData);
+
+            // Paso 3: Enviar datos del candidato
+            const fileUrl = `https://manatal-backend-assets.s3.amazonaws.com/${presignedData.fields.key}`;
+            await sendCandidateData(fileUrl);
+
+            alert("Candidato enviado con éxito.");
+        } catch (error) {
+            console.error("Error:", error.message);
+            alert("Hubo un error al procesar la solicitud.");
+        }
+    }
+
+    // Obtener la pre-signed URL
+    async function getPresignedUrl(file) {
+        const url = "https://www.careers-page.com/api/v1.0/jobs/apply-by-career-page-attachment-get-presigned-url/";
+        const md5 = await calculateFileMd5(file);
+        const payload = {
+            filename: file.name,
+            content_md5: md5,
+            content_type: file.type
+        };
+
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error al obtener pre-signed URL: ${response.statusText}`);
+        }
+
+        return await response.json();
+    }
+
+    // Subir archivo a S3
+    async function uploadFileToS3(file, presignedData) {
+        const formData = new FormData();
+
+        for (const [key, value] of Object.entries(presignedData.fields)) {
+            formData.append(key, value);
+        }
+
+        formData.append("file", file);
+
+        const response = await fetch(presignedData.url, {
+            method: "POST",
+            body: formData
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error al subir archivo a S3: ${response.statusText}`);
+        }
+
+        console.log("Archivo subido con éxito.");
+    }
+
+    // Enviar datos del candidato
+    async function sendCandidateData(fileUrl) {
+        const url = "https://www.careers-page.com/api/v1.0/jobs/2885687/application-form/";
+
+        const payload = {
+            application_data: {
+                "1640663": "PEDRO MENDOZA", // Nombre
+                "1640664": "pedro@gmail.com", // Correo electrónico
+                "1640665": "50495698991", // Teléfono
+                "1640688": [fileUrl] // Enlace al archivo subido
+            },
+            application_metadata: {
+                source: "null",
+                job_portal_slug: "null",
+                source_reference: "null"
+            }
+        };
+
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error al enviar los datos del candidato: ${response.statusText}`);
+        }
+
+        console.log("Datos del candidato enviados con éxito.");
+    }
+
+    // Calcular el hash MD5 del archivo usando CryptoJS
+    async function calculateFileMd5(file) {
+        const reader = new FileReader();
+        return new Promise((resolve, reject) => {
+            reader.onload = () => {
+                const wordArray = CryptoJS.lib.WordArray.create(reader.result);
+                const hash = CryptoJS.MD5(wordArray).toString(CryptoJS.enc.Base64);
+                resolve(hash);
+            };
+            reader.onerror = reject;
+            reader.readAsArrayBuffer(file);
+        });
+    }
+</script>
+</body>
+</html>
