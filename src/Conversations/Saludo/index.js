@@ -186,120 +186,221 @@ const supabase = createClient(supabaseUrl, supabaseKey)
 //     .addAnswer(OneLineMessage(["¿En qué puedo ayudarte hoy?"]))
 //     .addAnswer(IAAnswer)
 //     .setName("Saludo");
-const sendApplication = async (dbName,dbPhone,dbEmail) => {
-    const url = "https://www.careers-page.com/api/v1.0/jobs/2885687/application-form/";
-
-    const payload = {
-        application_data: {
-            "1640663": dbName,     // Nombre
-            "1640664": dbEmail,   // Correo electrónico
-            "1640665": dbPhone         // Teléfono
-            // Eliminado el campo del archivo
-        },
-        application_metadata: {
-            source: "null",
-            job_portal_slug: "null",
-            source_reference: "null"
-        }
-    };
-
-    try {
-        const response = await fetch(url, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            },
-            body: JSON.stringify(payload)
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            console.error("Error en la respuesta:", errorData);
-            return;
-        }
-
-        const result = await response.json();
-        console.log("Aplicación enviada exitosamente:", result);
-    } catch (error) {
-        console.error("Error al enviar la aplicación:", error.message);
-    }
-};
+// const sendApplication = async (dbName,dbPhone,dbEmail) => {
+//     const url = "https://www.careers-page.com/api/v1.0/jobs/2885687/application-form/";
+//
+//     const payload = {
+//         application_data: {
+//             "1640663": dbName,     // Nombre
+//             "1640664": dbEmail,   // Correo electrónico
+//             "1640665": dbPhone         // Teléfono
+//             // Eliminado el campo del archivo
+//         },
+//         application_metadata: {
+//             source: "null",
+//             job_portal_slug: "null",
+//             source_reference: "null"
+//         }
+//     };
+//
+//     try {
+//         const response = await fetch(url, {
+//             method: "POST",
+//             headers: {
+//                 "Content-Type": "application/json",
+//                 "Accept": "application/json"
+//             },
+//             body: JSON.stringify(payload)
+//         });
+//
+//         if (!response.ok) {
+//             const errorData = await response.json();
+//             console.error("Error en la respuesta:", errorData);
+//             return;
+//         }
+//
+//         const result = await response.json();
+//         console.log("Aplicación enviada exitosamente:", result);
+//     } catch (error) {
+//         console.error("Error al enviar la aplicación:", error.message);
+//     }
+// };
+// export const Final = new Flow()
+//     .addAnswer("Gracias, un agente se pondrá en contacto contigo para coordinar una entrevista.")
+//     .setName("Despedida");
+//
+// export class MenuController extends Answer {
+//     waitForAnswer = true;
+//     async handler(ctx) {
+//         const phone = ctx.body;
+//         await ctx.delayWithPresence('composing', 3);
+//         if (phone.length < 8){
+//             await ctx.reply('¡Su número es incorrecto, {name}!');
+//             ctx.moveToStep(ctx.phoneNumber, 0);
+//             return;
+//         }
+//
+//         ctx.useMemo(ctx.phoneNumber, 'phone', phone);
+//     }
+// }
+//
+// export class EmailController extends Answer {
+//     waitForAnswer = true;
+//     async handler(ctx) {
+//         const email = ctx.body;
+//
+//         ctx.useMemo(ctx.phoneNumber, 'email', email);
+//         await ctx.delayWithPresence('composing', 3);
+//         await ctx.reply(
+//             ctx.MemoText(
+//                 ctx.phoneNumber,
+//                 `👤 Su nombre es: {name}\n📞 Su teléfono es: {phone}\n📧 Su correo electrónico es: {email}`
+//             )
+//         );
+//         const dbName = ctx.useMemo(ctx.phoneNumber, 'name');
+//         const dbPhone = ctx.useMemo(ctx.phoneNumber, 'phone');
+//         const dbEmail = ctx.useMemo(ctx.phoneNumber, 'email');
+//
+//         await sendApplication(dbName, dbPhone, dbEmail);
+//     }
+// }
+//
+// export const Email = new Flow()
+//     .addKeyboard(["menu", "menú"])
+//     .addAnswer(OneLineMessage(["Excelente, ahora tu correo electrónico?"]))
+//     .addAnswer(EmailController)
+//     .setNextFlow(Final)
+//     .setName("Email");
+//
+// export const MenuFlow = new Flow()
+//     .addKeyboard(["menu", "menú"])
+//     .addAnswer(OneLineMessage(["{name}, ahora bríndame tu número de teléfono."]))
+//     .addAnswer(MenuController)
+//     .setNextFlow(Email)
+//     .setName("Menú");
+//
+// export class Saludo extends Answer {
+//     waitForAnswer = true;
+//     constructor() {
+//         super();
+//     }
+//     async handler(ctx) {
+//         ctx.useMemo(ctx.phoneNumber, 'name', ctx.body);
+//         await ctx.delayWithPresence('composing', 3);
+//         await ctx.reply(ctx.MemoText(ctx.phoneNumber, '¡Hola {name}!'));
+//         return;
+//     }
+// }
+//
+// export const FlowSaludo = new Flow()
+//     .addKeyboard(['hello', 'sup', 'whats doing'])
+//     .addKeyboard({
+//         key: ["hola", 'que onda', 'weee'],
+//         mode: 'equals',
+//         sensitive: false
+//     })
+//     .addAnswer('Hola, soy un asistente virtual. ¿Me puedes brindar tu nombre?')
+//     .addAnswer(Saludo)
+//     .setNextFlow(MenuFlow)
+//     .setName("Saludo");
+// 🟢 Flujo final
 export const Final = new Flow()
-    .addAnswer("Gracias, un agente se pondrá en contacto contigo para coordinar una entrevista.")
+    .addAnswer("Gracias, en un momento te vamos a contactar")
+    .addAnswer("Te deseamos mucha suerte")
     .setName("Despedida");
-
-export class MenuController extends Answer {
+export class NameController extends Answer {
     waitForAnswer = true;
     async handler(ctx) {
-        const phone = ctx.body;
+        const name = ctx.body.trim();
+        ctx.useMemo(ctx.phoneNumber, 'name', name);
+        await ctx.delayWithPresence('composing', 2);
+        await ctx.reply(`👤 Nombre registrado: ${name}`);
+    }
+}
 
-        if (phone.length < 8){
-            await ctx.reply('¡Su número es incorrecto, {name}!');
-            ctx.moveToStep(ctx.phoneNumber, 0);
-            return;
-        }
+export class DNIController extends Answer {
+    waitForAnswer = true;
+    async handler(ctx) {
+        const dni = ctx.body.trim();
+        ctx.useMemo(ctx.phoneNumber, 'dni', dni);
+        await ctx.delayWithPresence('composing', 2);
+        await ctx.reply(`📄 Documento registrado: ${dni}`);
+    }
+}
 
-        ctx.useMemo(ctx.phoneNumber, 'phone', phone);
+export class PhoneController extends Answer {
+    waitForAnswer = true;
+    async handler(ctx) {
+        const phone = ctx.body.trim();
+        ctx.useMemo(ctx.phoneNumber, 'userPhone', phone);
+        await ctx.delayWithPresence('composing', 2);
+        await ctx.reply(`📞 Celular registrado: ${phone}`);
     }
 }
 
 export class EmailController extends Answer {
     waitForAnswer = true;
     async handler(ctx) {
-        const email = ctx.body;
-
+        const email = ctx.body.trim();
         ctx.useMemo(ctx.phoneNumber, 'email', email);
-
-        await ctx.reply(
-            ctx.MemoText(
-                ctx.phoneNumber,
-                `👤 Su nombre es: {name}\n📞 Su teléfono es: {phone}\n📧 Su correo electrónico es: {email}`
-            )
-        );
-        const dbName = ctx.useMemo(ctx.phoneNumber, 'name');
-        const dbPhone = ctx.useMemo(ctx.phoneNumber, 'phone');
-        const dbEmail = ctx.useMemo(ctx.phoneNumber, 'email');
-
-        await sendApplication(dbName, dbPhone, dbEmail);
+        await ctx.delayWithPresence('composing', 2);
+        await ctx.reply(`📧 Correo registrado: ${email}`);
     }
 }
 
-export const Email = new Flow()
-    .addKeyboard(["menu", "menú"])
-    .addAnswer(OneLineMessage(["Excelente, ahora tu correo electrónico?"]))
-    .addAnswer(EmailController)
-    .setNextFlow(Final)
-    .setName("Email");
-
-export const MenuFlow = new Flow()
-    .addKeyboard(["menu", "menú"])
-    .addAnswer(OneLineMessage(["{name}, ahora bríndame tu número de teléfono."]))
-    .addAnswer(MenuController)
-    .setNextFlow(Email)
-    .setName("Menú");
-
-export class Saludo extends Answer {
+export class AddressController extends Answer {
     waitForAnswer = true;
-    constructor() {
-        super();
-    }
     async handler(ctx) {
-        ctx.useMemo(ctx.phoneNumber, 'name', ctx.body);
-        await ctx.delayWithPresence('composing', 1);
-        await ctx.reply(ctx.MemoText(ctx.phoneNumber, '¡Hola {name}!'));
-        return;
+        const address = ctx.body.trim();
+        ctx.useMemo(ctx.phoneNumber, 'address', address);
+        await ctx.delayWithPresence('composing', 2);
+        await ctx.reply(`🏠 Dirección o Empresa registrada: ${address}`);
+
+        // Mostrar resumen final
+        const name = ctx.useMemo(ctx.phoneNumber, 'name');
+        const dni = ctx.useMemo(ctx.phoneNumber, 'dni');
+        const userPhone = ctx.useMemo(ctx.phoneNumber, 'userPhone');
+        const email = ctx.useMemo(ctx.phoneNumber, 'email');
+        const UserAddress = ctx.useMemo(ctx.phoneNumber, 'address');
+
+        await ctx.delayWithPresence('composing', 2);
+        await ctx.reply(`✅ *Resumen de tus datos:*\n\n👤 Nombre: ${name}\n📄 DNI o RTN: ${dni}\n📞 Celular: ${userPhone}\n📧 Correo: ${email}\n🏠 Dirección o Empresa: ${UserAddress}`);
+
+        const { data, error } = await supabase
+            .from('whatsapp')
+            .insert([
+                {
+                    FullName: name,
+                    UserIdentity: dni,
+                    UserPhone:userPhone,
+                    UserEmail:email,
+                    UserAddress:UserAddress
+
+
+                }
+            ])
+            .select();
+
+        if (error) {
+            console.error('Error insertando en Supabase:', error);
+        } else {
+            console.log('Insertado en Supabase:', data);
+        }
     }
 }
+export const FlowName = new Flow()
+    .addKeyboard(["hola", "hello","ayuda"])
+    .addAnswer("Un placer tenerte por aqui, brindame los siguientes datos para poder ayudarte.")
+    .addAnswer("Bríndame tu nombre completo.", { capture: true })
+    .addAnswer(NameController)
+    .addAnswer("Escriba su *DNI* o si es empresa su *RTN*.", { capture: true })
+    .addAnswer(DNIController)
+    .addAnswer("Escriba su número de *celular*.", { capture: true })
+    .addAnswer(PhoneController)
+    .addAnswer("Indique su *correo electrónico*.", { capture: true })
+    .addAnswer(EmailController)
+    .addAnswer("Escriba su *dirección completa* o si es empresa el *nombre de ella*.", { capture: true })
+    .addAnswer(AddressController)
+    .setName("DatosPersonales")
+    .setNextFlow(Final);
 
-export const FlowSaludo = new Flow()
-    .addKeyboard(['hello', 'sup', 'whats doing'])
-    .addKeyboard({
-        key: ["hola", 'que onda', 'weee'],
-        mode: 'equals',
-        sensitive: false
-    })
-    .addAnswer('Hola, soy David. ¿Me puedes brindar tu nombre?')
-    .addAnswer(Saludo)
-    .setNextFlow(MenuFlow)
-    .setName("Saludo");

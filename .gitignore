@@ -1,3 +1,4 @@
 node_modules/
 Sessions/
+Sessions/auth
 .idea/
