@@ -304,6 +304,8 @@ const supabase = createClient(supabaseUrl, supabaseKey)
 //     .setNextFlow(MenuFlow)
 //     .setName("Saludo");
 // 🟢 Flujo final
+
+
 export const Final = new Flow()
     .addAnswer("Gracias, en un momento te vamos a contactar")
     .addAnswer("Te deseamos mucha suerte")
@@ -314,7 +316,7 @@ export class NameController extends Answer {
         const name = ctx.body.trim();
         ctx.useMemo(ctx.phoneNumber, 'name', name);
         await ctx.delayWithPresence('composing', 2);
-        await ctx.reply(`👤 Nombre registrado: ${name}`);
+        // await ctx.reply(`👤 Nombre registrado: ${name}`);
     }
 }
 
@@ -324,7 +326,7 @@ export class DNIController extends Answer {
         const dni = ctx.body.trim();
         ctx.useMemo(ctx.phoneNumber, 'dni', dni);
         await ctx.delayWithPresence('composing', 2);
-        await ctx.reply(`📄 Documento registrado: ${dni}`);
+        // await ctx.reply(`📄 Documento registrado: ${dni}`);
     }
 }
 
@@ -334,7 +336,7 @@ export class PhoneController extends Answer {
         const phone = ctx.body.trim();
         ctx.useMemo(ctx.phoneNumber, 'userPhone', phone);
         await ctx.delayWithPresence('composing', 2);
-        await ctx.reply(`📞 Celular registrado: ${phone}`);
+        // await ctx.reply(`📞 Celular registrado: ${phone}`);
     }
 }
 
@@ -344,7 +346,7 @@ export class EmailController extends Answer {
         const email = ctx.body.trim();
         ctx.useMemo(ctx.phoneNumber, 'email', email);
         await ctx.delayWithPresence('composing', 2);
-        await ctx.reply(`📧 Correo registrado: ${email}`);
+        // await ctx.reply(`📧 Correo registrado: ${email}`);
     }
 }
 
@@ -354,7 +356,7 @@ export class AddressController extends Answer {
         const address = ctx.body.trim();
         ctx.useMemo(ctx.phoneNumber, 'address', address);
         await ctx.delayWithPresence('composing', 2);
-        await ctx.reply(`🏠 Dirección o Empresa registrada: ${address}`);
+        // await ctx.reply(`🏠 Dirección o Empresa registrada: ${address}`);
 
         // Mostrar resumen final
         const name = ctx.useMemo(ctx.phoneNumber, 'name');
